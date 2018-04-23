@@ -110,11 +110,15 @@ class BasicTests(TestCase):
         self.assertEqual(received_return_4, desireble_return_4)
 
     #testing the default behaviour of utils.parser.translate directive
-    def test_translate_directives(self):
-        pattern_4 = ('tag1', [('attr1'), ('attr2', 'value1.2')], 'text1')
+    def test_get_all_directives(self):
+        list_of_patterns = [
+            ('a', [('href', '{url}')], '{}'),
+            ]
         bsdocument = BeautifulSoup(self.basic_html, 'html.parser')
-        logging.warning(parser.translate_directives(bsdocument, pattern_4))
+        logging.warning(parser.get_directives_objects(bsdocument, list_of_patterns))
         raise AssertionError
+
+    
 
 
         

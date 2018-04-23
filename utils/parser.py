@@ -8,6 +8,8 @@ from configurations import (
     DESCAPT_DEFAULT_PATTERNS_TO_SEARCH,
     DESCAPT_CAPTURE_PATTERN
 )
+import logging
+import re
 
 def is_url(BSObject):
     """
@@ -32,24 +34,73 @@ def directives(patt_to_search):
     for patt in copy_patt_to_search:
         if type(patt) == list:
             for i, subpatt in enumerate(patt):
+                name_getter = re.compile(r"{(.*?)}")
                 patt[i] = {
                     'attr': subpatt[0] if type(subpatt) == tuple else subpatt,
-                    'value':subpatt[1] if type(subpatt) == tuple else None
+                    'value': subpatt[1] if type(subpatt) == tuple else None,
                 }
+                if patt[i].get('name'):
+                    if patt[i]['name']) == 0:
+                        patt[i].pop('name', None)
+                    else:
+                        patt[i]['name'] = patt[i]['name'].pop()
     return dict(zip(keys, copy_patt_to_search))
 
 def get_all_directives(patterns_to_search=False):
+    """
+    Return all directives from a given pattern
+    patterns_to_search:: <list> list of patterns
+    """
     all_directives = []
-    for 
-        
-def translate_directives(BSObject, patterns_to_search=False):
-    translations = []
     if not patterns_to_search:
         patterns_to_search = DESCAPT_DEFAULT_PATTERNS_TO_SEARCH
+    for pattern in patterns_to_search:
+        all_directives.append(directives(pattern))
+    return list(all_directives)
 
-    
+def get_patterns(word, pattern):
 
-    for dir in all_directives:
-        tag_result = getattr(BSObject, dir.get('tag'))
-        translations.append(tag_result)
-    return translations
+    global_searcher = '("{}.*?")'
+
+
+
+def _get_attr(BSObject, attr):
+    pattern = attr.split('{}')
+    keys = [k for k in BSObject.attrs.keys() if all([ w in k for w in pattern])]
+    return keys
+
+def _get_val(_string, value):
+    pattern = value.split('{}')
+    word = _string
+    for s in pattern:
+        word = word.replace(s, '')
+    return word
+
+
+
+def get_directives_objects(BSObject, patterns_to_search=False):
+    """
+    Return objects from a BeautifulSoap object, given a
+    list of pattern directives.
+    BSObject:: <BeautifulSoap> Object
+    patterns_to_search:: <list> list of patterns
+    """
+    objects = []
+
+    all_directives = get_all_directives(patterns_to_search)
+
+    for directive in all_directives:
+        _obj = getattr(BSObject, directive.get('tag'))
+        _attr = directive.get('attr')
+        _text = directive.get('text')
+        if _attr != None:
+            for a_p in _attr:
+                a_p_name, a_p_value = a_p.get('attr'), a_p.get('value') 
+                all_attributes_avaliable = _get_attr(_obj, a_p_name)
+                for attrs in all_attributes_avaliable:
+                    received = _get_val(_obj.get(attrs), a_p_value)
+                    objects.append({attrs:received})
+    return objects
+
+
+

@@ -55,13 +55,9 @@ Pattern:
 (<tag>, <attribute>, <text>)
  A) get p's text:
  ('p', None, '{}') # ['This is a paragraph', 'This is a trap']
- 
- B) get p's part of the text
- ('p', None, 'This is a {}') ['paragraph', 'trap']
- 
  C) get h1's text when id is 'id2'
  ('h1', [('id', 'id2')], '{}') ['This is other heading']
- 
+
  D) get h1's id attribute when text is 'This is a heading'
  ('h1', [('id', '{}')], 'This is a heading') ['id1']
 
