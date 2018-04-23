@@ -110,13 +110,73 @@ class BasicTests(TestCase):
         self.assertEqual(received_return_4, desireble_return_4)
 
     #testing the default behaviour of utils.parser.translate directive
-    def test_get_all_directives(self):
+    def test_get_all_directives_given_only_attrs(self):
         list_of_patterns = [
-            ('a', [('href', '{url}')], '{}'),
+            ('a', [('href', '{url}')], None),
             ]
-        bsdocument = BeautifulSoup(self.basic_html, 'html.parser')
-        logging.warning(parser.get_directives_objects(bsdocument, list_of_patterns))
-        raise AssertionError
+        html = """
+        <!DOCTYPE html>
+        <html>
+        <title>HTML Tutorial</title>
+        <body>
+
+        <h1>This is a heading</h1>
+        <p>This is a paragraph.</p>
+        <a href='https://www.google.com'>Google</a>
+        <a href='https://www.zombie.com'>Zombie</a>
+
+        </body>
+        </html>
+        """
+        bsdocument = BeautifulSoup(html, 'html.parser')
+        received_return = parser.get_directives_objects(bsdocument, list_of_patterns)
+        expected_return = [
+            {
+                'url': 'https://www.google.com'
+            },
+            {
+                'url': 'https://www.zombie.com'
+            },
+        ]
+        self.assertEqual(received_return, expected_return)
+        
+    #testing the default behaviour of utils.parser.translate directive
+    def test_get_all_directives_given_only_text(self):
+        list_of_patterns = [
+            ('a', [('href', 'https://www.google.com')], '{description}'),
+            ('a', [('href', '{url}')], '{description}'),
+            ]
+        html = """
+        <!DOCTYPE html>
+        <html>
+        <title>HTML Tutorial</title>
+        <body>
+
+        <h1>This is a heading</h1>
+        <p>This is a paragraph.</p>
+        <a href='https://www.google.com'>Google</a>
+        <a href='https://www.zombie.com'>Zombie</a>
+
+        </body>
+        </html>
+        """
+        bsdocument = BeautifulSoup(html, 'html.parser')
+        received_return = parser.get_directives_objects(bsdocument, list_of_patterns)
+        expected_return = [
+            {
+                'description': 'Google',
+                'href': 'https://www.google.com'},
+            {
+                'description': 'Google',
+                'url': 'https://www.google.com'
+            },
+            {
+                'description': 'Zombie',
+                'url': 'https://www.zombie.com'
+            }
+        ]
+        #self.assertEqual(received_return, expected_return)
+
 
     
 

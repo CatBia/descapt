@@ -11,6 +11,10 @@ from configurations import (
 import logging
 import re
 
+def name_getter(val):
+    compiler = re.compile(r"{(.*?)}")
+    return compiler.findall(val)
+
 def is_url(BSObject):
     """
     Returns True when the given variable have the 'href' key/property
@@ -34,16 +38,15 @@ def directives(patt_to_search):
     for patt in copy_patt_to_search:
         if type(patt) == list:
             for i, subpatt in enumerate(patt):
-                name_getter = re.compile(r"{(.*?)}")
                 patt[i] = {
                     'attr': subpatt[0] if type(subpatt) == tuple else subpatt,
                     'value': subpatt[1] if type(subpatt) == tuple else None,
+                    'name': name_getter(subpatt[1]) if type(subpatt) == tuple else None,
                 }
-                if patt[i].get('name'):
-                    if patt[i]['name']) == 0:
-                        patt[i].pop('name', None)
-                    else:
-                        patt[i]['name'] = patt[i]['name'].pop()
+                if patt[i].get('name') in (None, []):
+                    patt[i].pop('name', None)
+                elif list(patt[i].get('name')):
+                    patt[i]['name'] = patt[i]['name'].pop()
     return dict(zip(keys, copy_patt_to_search))
 
 def get_all_directives(patterns_to_search=False):
@@ -58,23 +61,26 @@ def get_all_directives(patterns_to_search=False):
         all_directives.append(directives(pattern))
     return list(all_directives)
 
-def get_patterns(word, pattern):
 
-    global_searcher = '("{}.*?")'
-
-
-
-def _get_attr(BSObject, attr):
-    pattern = attr.split('{}')
+def _get_attr(BSObject, attr, value):
+    pattern = attr.split(value)
     keys = [k for k in BSObject.attrs.keys() if all([ w in k for w in pattern])]
     return keys
 
 def _get_val(_string, value):
-    pattern = value.split('{}')
-    word = _string
-    for s in pattern:
-        word = word.replace(s, '')
-    return word
+    pattern = value.split(value)
+    patt_name = name_getter(value)
+    if patt_name:
+        if pattern:
+            word = _string
+            for s in pattern:
+                word = word.replace(s, '')
+            return word, patt_name.pop()
+    else:
+        if _string == value:
+            return _string, False
+    return False
+
 
 
 
@@ -85,22 +91,33 @@ def get_directives_objects(BSObject, patterns_to_search=False):
     BSObject:: <BeautifulSoap> Object
     patterns_to_search:: <list> list of patterns
     """
-    objects = []
+    all_captured = []
+
 
     all_directives = get_all_directives(patterns_to_search)
-
     for directive in all_directives:
-        _obj = getattr(BSObject, directive.get('tag'))
-        _attr = directive.get('attr')
-        _text = directive.get('text')
-        if _attr != None:
-            for a_p in _attr:
-                a_p_name, a_p_value = a_p.get('attr'), a_p.get('value') 
-                all_attributes_avaliable = _get_attr(_obj, a_p_name)
-                for attrs in all_attributes_avaliable:
-                    received = _get_val(_obj.get(attrs), a_p_value)
-                    objects.append({attrs:received})
-    return objects
+        bso = BSObject.find_all(directive.get('tag'))
+        for _obj in bso:
+            _attr = directive.get('attr')
+            _text = directive.get('text')
+            if _attr != None:
+                for a_p in _attr:
+                    a_p_attr, a_p_value = a_p.get('attr'), a_p.get('value')
+                    a_p_name = a_p.get('name')
+                    all_attributes_avaliable = _get_attr(_obj, a_p_attr, a_p_value)
+                    for attrs in all_attributes_avaliable:
+                        received = _get_val(_obj.get(attrs), a_p_value)
+                        if received:
+                            rec, _ = received
+                            capture = {}
+                            if _text != None:
+                                a_p_text, a_p_text_name = _get_val(_obj.text, _text)
+                                capture[a_p_text_name or 'text'] = a_p_text
+                            capture[a_p_name or attrs] = rec
+                            if not capture in all_captured:
+                                all_captured.append(capture)
+
+    return all_captured
 
 
 
