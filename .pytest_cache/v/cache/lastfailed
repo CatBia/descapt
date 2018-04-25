@@ -1,0 +1,7 @@
+{
+  "tests/utils/test_parser.py::BasicTests::test_get_all_directives_given_only_text": true,
+  "tests/utils/test_parser.py::BasicTests::test_translate_directives": true,
+  "tests/utils/test_requester.py": true,
+  "tests/utils/test_requester.py::ParsingTests::test_default_behavior_only_one": true,
+  "tests/utils/test_requester.py::ParsingTests::test_w_current_url": true
+}

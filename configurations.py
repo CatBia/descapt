@@ -69,7 +69,7 @@ DESCAPT_DEFAULT_PATTERNS_TO_SEARCH = [
     ('title', None, None), 
     ('a', [('class', 'details product-name'),('href', '{}')], '{}'),
 ]
-
+CHROMEWEBDRIVER_PATH = os.path.abspath('chromedriver')
 try:
     from custom_config import *
 except:

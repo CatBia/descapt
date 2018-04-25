@@ -143,8 +143,8 @@ class BasicTests(TestCase):
     #testing the default behaviour of utils.parser.translate directive
     def test_get_all_directives_given_only_text(self):
         list_of_patterns = [
-            ('a', [('href', 'https://www.google.com')], '{description}'),
-            ('a', [('href', '{url}')], '{description}'),
+            ('shelf-default__item skip', [('href', 'https://www.google.com')], '{description}'),
+
             ]
         html = """
         <!DOCTYPE html>

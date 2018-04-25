@@ -33,7 +33,7 @@ def directives(patt_to_search):
     patt_to_search:: <tuple>
 
     """
-    keys = ('tag', 'attr', 'text')
+    keys = ('class', 'attr', 'text')
     copy_patt_to_search = patt_to_search
     for patt in copy_patt_to_search:
         if type(patt) == list:
@@ -74,6 +74,8 @@ def _get_val(_string, value):
         if pattern:
             word = _string
             for s in pattern:
+                if type(word) == list:
+                    word = word.pop()
                 word = word.replace(s, '')
             return word, patt_name.pop()
     else:
@@ -96,7 +98,8 @@ def get_directives_objects(BSObject, patterns_to_search=False):
 
     all_directives = get_all_directives(patterns_to_search)
     for directive in all_directives:
-        bso = BSObject.find_all(directive.get('tag'))
+
+        bso = BSObject.find_all(class_=directive.get('class'))
         for _obj in bso:
             _attr = directive.get('attr')
             _text = directive.get('text')

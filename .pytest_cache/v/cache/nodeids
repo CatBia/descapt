@@ -1,0 +1,3 @@
+[
+  "tests/utils/test_requester.py::ParsingTests::test_w_current_url"
+]
